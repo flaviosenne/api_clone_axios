@@ -5,6 +5,7 @@ const {createSandbox} = require('sinon')
 
 
 describe('Request helpers', () => {
+    const timeout = 15
     let sandbox
     let request
     
@@ -15,8 +16,7 @@ describe('Request helpers', () => {
 
     afterEach(() => sandbox.restore())
 
-
-    it('shoud test', () => {
-        assert.ok(true)
-    })
+    it(`should throw a timeout error when function has spent more than ${timeout}ms`)
+    it('shoud return ok when promise time is ok')
+    it('shoud return a JSON object after a request')
 })
