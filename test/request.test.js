@@ -2,7 +2,7 @@ const {describe, it, before, afterEach} =require('mocha')
 const assert = require('assert')
 const Request = require('../src/request')
 const {createSandbox} = require('sinon')
-
+const Events = require('events')
 
 describe('Request helpers', () => {
     const timeout = 15
@@ -40,6 +40,35 @@ describe('Request helpers', () => {
         await assert.doesNotReject(call())
         assert.deepStrictEqual(await call(), expected)
     })
-    
-    it('shoud return a JSON object after a request')
+
+    it('shoud return a JSON object after a request', async () => {
+        const data = [
+            Buffer.from('{"ok": '),
+            Buffer.from('"ok"'),
+            Buffer.from('}')
+        ]
+        const responseEvent = new Events()
+        const httpEvent = new Events()
+
+        const https = require('https')
+        sandbox
+        .stub(
+            https,
+            https.get.name
+            )
+        .yields(responseEvent)
+        .returns(httpEvent)
+
+        const expected = { ok: 'ok'}
+        const pendingPromise = request.get('https://testing.com')
+        
+        responseEvent.emit('data', data[0])
+        responseEvent.emit('data', data[1])
+        responseEvent.emit('data', data[2])
+
+            responseEvent.emit('end')
+
+        const result = await pendingPromise
+        assert.deepStrictEqual(result, expected)
+    })
 })
